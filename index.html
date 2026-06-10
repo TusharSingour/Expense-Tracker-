@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>ApexSpend — Expense Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="gradient-bg" aria-hidden="true"></div>
+
+    <div id="loading-overlay" class="loading-overlay" role="status" aria-live="polite" aria-busy="true">
+      <div class="spinner"></div>
+      <span class="sr-only">Loading application…</span>
+    </div>
+
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="sidebar__brand">
+        <span class="sidebar__logo" aria-hidden="true">◇</span>
+        <span class="sidebar__title">ApexSpend</span>
+      </div>
+      <nav class="sidebar__nav" aria-label="Primary">
+        <a href="#" class="sidebar__link sidebar__link--active" data-page="dashboard" aria-current="page">
+          <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span class="sidebar__text">Dashboard</span>
+        </a>
+        <a href="#" class="sidebar__link" data-page="add">
+          <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span class="sidebar__text">Add Transaction</span>
+        </a>
+        <a href="#" class="sidebar__link" data-page="history">
+          <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span class="sidebar__text">History</span>
+        </a>
+        <a href="#" class="sidebar__link" data-page="profile">
+          <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="sidebar__text">Profile</span>
+        </a>
+      </nav>
+      <button type="button" class="sidebar__export" id="btn-export-csv" aria-label="Export transactions to CSV">
+        <svg class="sidebar__export-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span class="sidebar__export-text">Export CSV</span>
+      </button>
+      <button type="button" class="sidebar__collapse sidebar__collapse--desktop" id="sidebar-collapse" aria-label="Collapse sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </aside>
+
+    <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <button type="button" class="topbar__menu" id="menu-toggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar__greeting">
+          <p class="topbar__hello">Hello, <strong id="user-greeting-name">Alex Morgan</strong> <span aria-hidden="true">👋</span></p>
+          <p class="topbar__sub" id="topbar-date"></p>
+        </div>
+        <div class="topbar__actions">
+          <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle color theme">
+            <span class="theme-toggle__sun" aria-hidden="true">☀️</span>
+            <span class="theme-toggle__moon" aria-hidden="true">🌙</span>
+          </button>
+          <div class="avatar-dropdown">
+            <button type="button" class="avatar-btn" id="avatar-toggle" aria-expanded="false" aria-haspopup="true">
+              <img src="" alt="" class="avatar-img" id="avatar-img" width="40" height="40" />
+              <span class="avatar-placeholder" id="avatar-placeholder">AM</span>
+            </button>
+            <div class="avatar-menu" id="avatar-menu" role="menu" hidden>
+              <button type="button" role="menuitem" data-page="profile">Profile</button>
+              <button type="button" role="menuitem" id="menu-logout">Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content page-transition" id="main-content">
+        <!-- Dashboard -->
+        <section class="page page--active" id="page-dashboard" data-view="dashboard" aria-labelledby="dash-heading">
+          <div class="page-header">
+            <h1 id="dash-heading" class="page-title">Dashboard</h1>
+            <p class="page-desc">Overview of your finances at a glance.</p>
+          </div>
+
+          <div class="summary-grid">
+            <article class="glass-card summary-card summary-card--balance">
+              <div class="summary-card__glow"></div>
+              <div class="summary-card__icon summary-card__icon--balance">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              </div>
+              <p class="summary-card__label">Total Balance</p>
+              <p class="summary-card__value" id="sum-balance"></p>
+            </article>
+            <article class="glass-card summary-card summary-card--income">
+              <div class="summary-card__icon summary-card__icon--income">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <p class="summary-card__label">Total Income</p>
+              <p class="summary-card__value summary-card__value--green" id="sum-income"></p>
+            </article>
+            <article class="glass-card summary-card summary-card--expense">
+              <div class="summary-card__icon summary-card__icon--expense">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+              </div>
+              <p class="summary-card__label">Total Expense</p>
+              <p class="summary-card__value summary-card__value--red" id="sum-expense"></p>
+            </article>
+          </div>
+
+          <article class="glass-card monthly-summary">
+            <div class="monthly-summary__header">
+              <h2 class="card-heading">This month</h2>
+              <span class="badge badge--muted" id="month-label"></span>
+            </div>
+            <div class="monthly-summary__stats">
+              <div><span class="muted">Income</span><strong class="text-success" id="month-income"></strong></div>
+              <div><span class="muted">Expense</span><strong class="text-danger" id="month-expense"></strong></div>
+              <div><span class="muted">Net</span><strong id="month-net"></strong></div>
+            </div>
+          </article>
+
+          <div class="charts-grid">
+            <article class="glass-card chart-card">
+              <h2 class="card-heading">Expenses by category</h2>
+              <p class="chart-sub">Totals in Indian Rupees (INR)</p>
+              <div class="chart-wrap">
+                <canvas id="chart-pie" width="280" height="240" aria-label="Pie chart of expenses by category"></canvas>
+              </div>
+            </article>
+            <article class="glass-card chart-card chart-card--wide">
+              <h2 class="card-heading">Monthly income vs expense</h2>
+              <p class="chart-sub">Bars scaled in Indian Rupees (INR)</p>
+              <div class="chart-wrap chart-wrap--bar">
+                <canvas id="chart-bar" width="560" height="260" aria-label="Bar chart of monthly flows"></canvas>
+              </div>
+            </article>
+          </div>
+
+          <article class="glass-card recent-card">
+            <div class="recent-card__head">
+              <h2 class="card-heading">Recent transactions</h2>
+              <a href="#" class="link-muted" data-page="history">View all</a>
+            </div>
+            <ul class="txn-list" id="recent-list"></ul>
+          </article>
+        </section>
+
+        <!-- Add Transaction -->
+        <section class="page" id="page-add" data-view="add" aria-labelledby="add-heading">
+          <div class="page-header page-header--center">
+            <h1 id="add-heading" class="page-title">Add transaction</h1>
+            <p class="page-desc">Record income or expense in one place.</p>
+          </div>
+          <div class="form-shell">
+            <form class="glass-form" id="form-transaction" novalidate>
+              <div class="float-field float-field--inr">
+                <input type="number" id="tx-amount" name="amount" class="float-input float-input--inr" placeholder=" " step="0.01" min="0.01" required inputmode="decimal" />
+                <label class="float-label" for="tx-amount">Amount (INR)</label>
+              </div>
+              <div class="float-field float-field--category" id="add-category-field">
+                <select id="tx-category" name="category" class="float-input float-select" required aria-describedby="add-category-preview"></select>
+                <label class="float-label" for="tx-category">Category</label>
+              </div>
+              <div id="add-category-preview" class="category-preview-bar" role="presentation"></div>
+              <div class="toggle-row">
+                <span class="toggle-label">Type</span>
+                <div class="type-toggle" role="group" aria-label="Transaction type">
+                  <input type="radio" name="type" id="type-expense" value="expense" checked class="sr-only" />
+                  <label for="type-expense" class="type-toggle__btn">Expense</label>
+                  <input type="radio" name="type" id="type-income" value="income" class="sr-only" />
+                  <label for="type-income" class="type-toggle__btn">Income</label>
+                </div>
+              </div>
+              <div class="float-field">
+                <input type="date" id="tx-date" name="date" class="float-input" required />
+                <label class="float-label" for="tx-date">Date</label>
+              </div>
+              <div class="float-field">
+                <input type="text" id="tx-note" name="note" class="float-input" placeholder=" " maxlength="200" />
+                <label class="float-label" for="tx-note">Note (optional)</label>
+              </div>
+              <button type="submit" class="btn-gradient">Add transaction</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- History -->
+        <section class="page" id="page-history" data-view="history" aria-labelledby="hist-heading">
+          <div class="page-header">
+            <h1 id="hist-heading" class="page-title">History</h1>
+            <p class="page-desc">Search, filter, and manage past transactions.</p>
+          </div>
+          <div class="history-toolbar glass-toolbar">
+            <div class="toolbar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="search" id="hist-search" placeholder="Search note or category…" autocomplete="off" />
+            </div>
+            <select id="hist-filter-cat" class="toolbar-select" aria-label="Filter by category"></select>
+            <div class="date-range">
+              <input type="date" id="hist-from" class="toolbar-date" aria-label="From date" />
+              <span class="date-range__sep">—</span>
+              <input type="date" id="hist-to" class="toolbar-date" aria-label="To date" />
+            </div>
+          </div>
+          <div class="table-shell glass-card">
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Note</th>
+                    <th class="text-right">Amount</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+              </table>
+            </div>
+            <p class="empty-state" id="history-empty" hidden>No transactions match your filters.</p>
+          </div>
+        </section>
+
+        <!-- Profile -->
+        <section class="page" id="page-profile" data-view="profile" aria-labelledby="prof-heading">
+          <div class="page-header page-header--center">
+            <h1 id="prof-heading" class="page-title">Profile</h1>
+            <p class="page-desc">Your account details.</p>
+          </div>
+          <div class="profile-layout">
+            <article class="glass-card profile-card">
+              <div class="profile-card__avatar-wrap">
+                <div class="profile-avatar" id="profile-avatar-display">AM</div>
+                <button type="button" class="btn-text" id="btn-random-avatar">Random avatar color</button>
+              </div>
+              <div class="profile-card__info">
+                <h2 class="profile-name" id="profile-name-display">Alex Morgan</h2>
+                <p class="profile-email" id="profile-email-display">alex@example.com</p>
+              </div>
+            </article>
+            <form class="glass-form profile-form" id="form-profile">
+              <div class="float-field">
+                <input type="text" id="prof-name" class="float-input" placeholder=" " required />
+                <label class="float-label" for="prof-name">Full name</label>
+              </div>
+              <div class="float-field">
+                <input type="email" id="prof-email" class="float-input" placeholder=" " required />
+                <label class="float-label" for="prof-email">Email</label>
+              </div>
+              <button type="submit" class="btn-gradient btn-gradient--secondary">Save changes</button>
+              <button type="button" class="btn-danger" id="btn-logout-profile">Logout</button>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-label="Notifications"></div>
+
+    <div id="modal-overlay" class="modal-overlay" hidden>
+      <div class="modal glass-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <h2 id="modal-title" class="modal-title">Edit transaction</h2>
+        <form id="form-edit-transaction">
+          <input type="hidden" id="edit-id" />
+          <div class="float-field float-field--inr">
+            <input type="number" id="edit-amount" class="float-input float-input--inr" placeholder=" " step="0.01" min="0.01" required inputmode="decimal" />
+            <label class="float-label" for="edit-amount">Amount (INR)</label>
+          </div>
+          <div class="float-field float-field--category" id="edit-category-field">
+            <select id="edit-category" class="float-input float-select" required aria-describedby="edit-category-preview"></select>
+            <label class="float-label" for="edit-category">Category</label>
+          </div>
+          <div id="edit-category-preview" class="category-preview-bar category-preview-bar--modal" role="presentation"></div>
+          <div class="toggle-row">
+            <span class="toggle-label">Type</span>
+            <div class="type-toggle" role="group">
+              <input type="radio" name="edit-type" id="edit-type-expense" value="expense" class="sr-only" />
+              <label for="edit-type-expense" class="type-toggle__btn">Expense</label>
+              <input type="radio" name="edit-type" id="edit-type-income" value="income" class="sr-only" />
+              <label for="edit-type-income" class="type-toggle__btn">Income</label>
+            </div>
+          </div>
+          <div class="float-field">
+            <input type="date" id="edit-date" class="float-input" required />
+            <label class="float-label" for="edit-date">Date</label>
+          </div>
+          <div class="float-field">
+            <input type="text" id="edit-note" class="float-input" placeholder=" " />
+            <label class="float-label" for="edit-note">Note</label>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn-ghost" id="modal-cancel">Cancel</button>
+            <button type="submit" class="btn-gradient">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
